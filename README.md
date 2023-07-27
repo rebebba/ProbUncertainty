@@ -6,5 +6,10 @@ This R package provides functions to calculate from a binomial GLM output
 (2) the profile CIs,
 (3) the score CIs
 
-Analyses by Rebecca Nagel, Graeme Ruxton, and Michael Morrissey
-Please cite: "Classical test, linear models, and their extensions for the analysis of 2x2 contingency tables"
+Please cite: Rebecca Nagel, Graeme Ruxton, and Michael Morrissey. 2023. "Classical test, linear models, and their extensions for the analysis of 2x2 contingency tables"
+
+To install:
+```
+library(devtools)
+install_github("rebebba/GLMuncertainity")
+```
