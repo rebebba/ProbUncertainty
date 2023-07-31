@@ -12,5 +12,5 @@ Please cite: Rebecca Nagel, Graeme Ruxton, and Michael Morrissey. 2023. "Classic
 To install:
 ```
 library(devtools)
-install_github("rebebba/ProbUncertainity")
+install_github("rebebba/ProbUncertainity", build_vignettes = TRUE)
 ```
