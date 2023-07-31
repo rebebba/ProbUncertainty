@@ -2,20 +2,37 @@
 % Please edit documentation in R/GLMuncertainty.R
 \name{glm.se.data}
 \alias{glm.se.data}
-\title{Calculate the standard error of a difference between two properties
-from a GLM analysis using the delta method}
+\title{Delta Method Standard Errors}
 \usage{
 glm.se.data(m)
 }
 \arguments{
-\item{m}{is the GLM object}
+\item{m}{A GLM object with a logit link function and a binomial response.}
+}
+\value{
+A numeric object containing the standard error for the difference
+in probability from logistic regression result.
 }
 \description{
-Calculate the standard error of a difference between two properties
-from a GLM analysis using the delta method
+Calculate the standard error of the difference in probability from logistic
+regression result using the delta method.
+}
+\details{
+The delta method is a common technique to approximate the standard errors for
+nonlinear transformations of model parameters. It is based on computing the
+variance for a Taylor series linearization of a function. For more detailed
+information, please see the references.
+}
+\examples{
+data("startrek")
+startrek$uniform <- ifelse(startrek$uniform == "red", 1, 0)
+startrek$status <- ifelse(startrek$status == "dead", 1, 0)
+glm_redshirt <- glm(status ~ uniform, data = startrek, family = "binomial")
+glm.se.data(glm_redshirt)
+
 }
 \references{
-Dorfman, R. (1938). A note on the delta-method for finding variance formulae. The Biométrie Bulletin, 1, 129–137
+Ver Hoef, J. M. (2012). Who invented the delta method? American Statistician, 66(2), 124–127. \doi{https://doi.org/10.1080/00031305.2012.687494}
 
-Ver Hoef, J. M. (2012). Who invented the delta method? American Statistician, 66(2), 124–127. https://doi.org/10.1080/00031305.2012.687494
+Lynch, M., & Walsh, B. (1998). Appendix 1: Expectations, Variances, and Covariances of Compound Variables. In Genetics and Analysis of Quantitative Traits (pp. 807–822). Sinauer Associates, Inc.
 }

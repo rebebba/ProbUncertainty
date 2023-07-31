@@ -2,13 +2,30 @@
 % Please edit documentation in R/GLMuncertainty.R
 \name{glm.prob.diff}
 \alias{glm.prob.diff}
-\title{calculate difference in probabilities between two groups from GLM output}
+\title{Calculate the difference in probability from logistic regression result.}
 \usage{
 glm.prob.diff(m)
 }
 \arguments{
-\item{m}{is the GLM object}
+\item{m}{A GLM object with a logit link function and a binomial response.}
+}
+\value{
+A numeric object containing the difference in probability
+from logistic regression result.
 }
 \description{
-calculate difference in probabilities between two groups from GLM output
+Calculate the difference in probability from logistic regression result.
+}
+\details{
+The difference in probability between two groups is defined by
+\eqn{g^{-1}(GLMintercept + GLMslope) - g^{-1}(GLMintercept)},
+where \eqn{g^{-1}()} is the inverse of the logit link function.
+}
+\examples{
+data("startrek")
+startrek$uniform <- ifelse(startrek$uniform == "red", 1, 0)
+startrek$status <- ifelse(startrek$status == "dead", 1, 0)
+glm_redshirt <- glm(status ~ uniform, data = startrek, family = "binomial")
+glm.prob.diff(glm_redshirt)
+
 }

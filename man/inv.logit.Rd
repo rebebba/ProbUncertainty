@@ -2,13 +2,21 @@
 % Please edit documentation in R/GLMuncertainty.R
 \name{inv.logit}
 \alias{inv.logit}
-\title{translate GLM coef from the logit / log-odds scale to the probability scale}
+\title{Inverse of the logit link function.}
 \usage{
 inv.logit(x)
 }
 \arguments{
-\item{x}{coefficient in GLM object}
+\item{x}{A numeric object.}
+}
+\value{
+A numeric object containing the inverse logit of the input value.
 }
 \description{
-translate GLM coef from the logit / log-odds scale to the probability scale
+Inverse of the logit link function.
+}
+\details{
+The inverse logit is defined by \eqn{exp(x)/(1+exp(x))}. Values in x are transformed
+from a real number (the logarithm of the odds; value between -Inf and Inf) to a probability
+with a value between 0 and 1.
 }

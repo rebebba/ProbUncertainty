@@ -2,5 +2,6 @@
 
 export(glm.prob.diff)
 export(glm.se.data)
+export(inv.logit)
 export(profCI)
 export(scoreCI)

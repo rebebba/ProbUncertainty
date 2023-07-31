@@ -2,30 +2,39 @@
 % Please edit documentation in R/GLMuncertainty.R
 \name{profCI}
 \alias{profCI}
-\title{Calculate the profile likelihood-based confidence intervals for a difference
-in probabilities between two groups.To generate the profile likelihood CI, we
-fixed δp to a range of values between -0.99 and 0.99, and found the value of
-p0  that maximised the likelihood of observing the data, given the fixed
-value of δp. We then recorded the upper and lower values of δ_p for which the
-twice the log likelihood difference from the unconstrained model was less than
-the 95\% quantile of a chi-squared distribution with one degree of freedom.}
+\title{Profile Likelihood-Based Confidence Intervals}
 \usage{
 profCI(x, y)
 }
 \arguments{
-\item{x}{is predictor variable}
+\item{x}{A predictor variable.}
 
-\item{y}{is response variable}
+\item{y}{A (binomial) response variable.}
+}
+\value{
+A numeric object containing the profile likelihood-based confidence
+intervals for the difference in probability.
 }
 \description{
-Calculate the profile likelihood-based confidence intervals for a difference
-in probabilities between two groups.To generate the profile likelihood CI, we
-fixed δp to a range of values between -0.99 and 0.99, and found the value of
-p0  that maximised the likelihood of observing the data, given the fixed
-value of δp. We then recorded the upper and lower values of δ_p for which the
-twice the log likelihood difference from the unconstrained model was less than
+Calculate profile likelihood-based confidence intervals of the difference in probability.
+}
+\details{
+To generate the profile likelihood CI of the difference in probability, the difference
+in probabilities (δp) is
+fixed to a range of values between -0.99 and 0.99. The value of p0
+(the probability for the first group) that
+maximizes the likelihood of observing the data gives the fixed value of δp.
+Reported are the upper and lower values of δp for which twice the log
+likelihood difference from the unconstrained model was less than
 the 95\% quantile of a chi-squared distribution with one degree of freedom.
 }
+\examples{
+data("startrek")
+startrek$uniform <- ifelse(startrek$uniform == "red", 1, 0)
+startrek$status <- ifelse(startrek$status == "dead", 1, 0)
+profCI(x = startrek$uniform, y = startrek$status)
+
+}
 \references{
-Cole, S. R., Chu, H., & Greenland, S. (2014). Maximum likelihood, profile likelihood, and penalized likelihood: A primer. American Journal of Epidemiology, 179(2), 252–260. https://doi.org/10.1093/aje/kwt245
+Cole, S. R., Chu, H., & Greenland, S. (2014). Maximum likelihood, profile likelihood, and penalized likelihood: A primer. American Journal of Epidemiology, 179(2), 252–260. \doi{https://doi.org/10.1093/aje/kwt245}
 }
