@@ -1,0 +1,322 @@
+---
+title: "Introduction to ProbUncertainity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to ProbUncertainity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+***
+
+Here, we demonstrate two regression methods for the analysis of data comprising categorical explanatory and binomial response variables: the linear regression and the logistic regression. Given that many researchers may prefer to consider their data and results in terms of probabilities rather than differences in log-odds ratios, for the logistic regression we provide functions to calculate (1) the standard error of a difference between two probabilities using the delta method from a GLM object with a logit link function and a binomial response, (2) profile likelihood-based confidence intervals of the difference in probability, (3) score confidence intervals of the difference in probability.
+
+***
+## Loading ProbUncertainity
+
+```{r setup, message=FALSE}
+# library(devtools)
+# install_github("rebebba/ProbUncertainity")
+
+library("ProbUncertainity")
+```
+
+## Citing ProbUncertainity
+
+```{r}
+citation(package = "ProbUncertainity")
+```
+
+## Example data: The Red Shirt Curse in *Star Trek: The Original Series*
+
+There is a longstanding hypothesis among fans of Star Trek: The Original Series that if an Enterprise crew member is wearing a red shirt, they are far more likely to die than other members of the crew wearing a different color Starfleet uniform (typically blue for scientists and gold for officers). We will test this hypothesis.
+
+```{r}
+data("startrek")
+table(startrek)
+```
+
+Since we are only interested in the survival of crew members who wear red Starfleet uniforms verses those that do not, we will merge crew members who wear blue and gold uniforms into one group. 
+
+```{r}
+startrek$uniform <- ifelse(startrek$uniform == "red", 1, 0)
+startrek$status <- ifelse(startrek$status == "dead", 1, 0)
+```
+
+## A classical test for the analysis of 2x2 contingency tables
+
+The Pearson's chi-square test is widely viewed as a reasonable way to asses differences between groups (i.e. categorical differences in discrete variables).
+
+```{r}
+chisq.test(startrek$uniform, startrek$status, correct = FALSE)
+```
+
+Using the conventionally accepted 5% threshold, this result tells us that there is no difference between groups. Crew members wearing red shirts are not more likely to die than crew members wearing another color uniform. However, this test does not provide any information on the strength or direction of association among variables. It only provides the p value.
+
+## A linear regression
+
+One alternative to the classical chi-square test is a linear regression. A linear model (LM) robustly estimates differences of proportions between groups and provides information on the strength and direction of the association. Statistical uncertainty is largely unbiased, although somewhat compromised when sample size is small and unbalanced between the groups. These are the same conditions under which a chi-square test is discouraged.
+
+```{r}
+lm_redshirt <- lm(status ~ uniform, data = startrek)
+summary(lm_redshirt)
+```
+
+From the LM summary output, we can easily extract the estimated difference in probabilities, standard error, and p value.
+
+```{r}
+# estimated difference in probabilities
+summary(lm_redshirt)$coefficients[2, 1]
+# standard error
+summary(lm_redshirt)$coefficients[2, 2]
+# p value
+summary(lm_redshirt)$coefficients[2, 4]
+```
+
+The LM analysis tells us that a crew member wearing a red Starfleet uniform is about 3% more likely have died by the end of season 3 of TOS than a crew member wearing another color uniform. However, considering that red uniforms were worn by members of the operations division - and in particular by the Security And Tactical Division, an inherently high-risk station - this is not such a large effect.
+
+## A logistic regression
+
+Another alternative for the analysis of 2x2 contingency tables would be a logistic regression. A generalized linear model (GLM)  with a logit link function and a binomial response also provides accurate estimates of differences between groups. However, estimates of differences from the GLM summary output are provided on the log-odds rather than the probability scale.
+
+```{r}
+glm_redshirt <- glm(status ~ uniform, data = startrek, family = "binomial")
+summary(glm_redshirt)
+```
+
+To calculate the difference in probability from a logistic regression result (i.e.  convert the logs-odds to the probability (data) scale), we need to first take the inverse logit of our model estimates and then calculate the difference between our two groups of interest. In our R package, this is simply done by calling the function `glm.prob.diff`.
+
+```{r}
+# estimated difference in probabilities
+glm.prob.diff(glm_redshirt)
+```
+
+The default statistical hypothesis test for GLMs is the z-test, which is well-known to behave poorly for binomial GLMs, especially when some groups have very high or low probabilities. It is thus widely recommended to apply the likelihood ratio test (LRT) to such a GLM analysis. Using the LRT, the GLM p value has a high power to reject false null hypotheses and a low type 1 error rate.
+
+```{r}
+glm_0 <- glm(status ~ 1, data = startrek, family = "binomial")
+# p value based on LRT
+as.numeric(1 - pchisq(2 * (logLik(glm_redshirt) - logLik(glm_0)), 1))
+```
+
+### Calculating delta method standard errors
+
+Now that we have a well performing p value for our binomial GLM, it would be good to calculate a standard error of the GLM estimated difference in probability. This can be done using the delta method.
+
+If $x$ is a random variable, and $y$ is a linear function of $x$ such that $y = a + bx$, then the variance of $y$ is 
+
+\begin{equation}
+VAR[y]=VAR[x]b^2
+\end{equation}
+
+More generally, if the vector $\mathbf{y}$ is a linear function of the random vector $\mathbf{x}$, $\mathbf{y} = \mathbf{a} + \mathbf{b}\mathbf{x}$, then the variance covariance matrix of $\mathbf{y}$ is
+
+\begin{equation}
+VCOV[\mathbf{y}] = \mathbf{b}^tVCOV[\mathbf{x}] \mathbf{b} 
+\end{equation}
+
+Probabilities are non-linear, but scaling from log-odds to probability is a monotonic transformation. The delta method thus takes the derivatives of the relevant function (in this case the inverse logit function) in the linear approximation of the transformation of the measurement error variance (the SE squared) of the logit scale parameters to the probability scale parameters.
+
+The derivative of the inverse logit function in relation to the estimate of the intercept  of a binomial GLM $\alpha_{GLM}$ is
+
+\begin{equation}
+\frac{\partial p}{\partial \alpha_{GLM}} = ...
+\frac{e^{2x} }{ (1 + e^x)^2}
+- \frac{e^x }{ 1 + e^x}
+- \frac{e^{2x+2y}}{(1 + e^{x + y})^2} )
++ \frac{e^{x+y} }{ 1 + e^{x+y}}
+\end{equation}
+
+The derivative of the inverse logit function in relation to the estimate of the slope  of a binomial GLM $\beta_{GLM} $is
+
+\begin{equation}
+\frac{\partial p}{\partial \beta_{GLM}} =
+\frac{ e^{x+y} }{ 1+e^{x+y} }
+- \frac{ e^{2x+2y} }{ (1+e^{x+y})^2 }
+\end{equation}
+
+If we apply this to our example GLM with a logit link function and a binomial response of red shirt survival, the measurement error covariance matrix of $\alpha_{GLM}$ and $\beta_{GLM}$ can be extracted from the GLM object by
+
+```{r}
+a <- stats::coef(glm_redshirt)[1]
+b <- stats::coef(glm_redshirt)[2]
+```
+
+The application of the variance covariance matrix equation to approximate* the measurement error variance of the difference in probabilities is then
+
+```{r}
+B <-  matrix(c(exp(2 * a) / (1 + exp(a)) ^ 2 - exp(a) / (1 + exp(a)) - exp(2 * a + 2 * b) / (1 + exp(a + b)) ^ 2 + exp(a + b) / (1 + exp(a + b)), exp(a + b) / (1 + exp(a + b)) - exp(2 * a + 2 * b) / (1 + exp(a + b)) ^ 2), 2, 1)
+
+vcv_probability_scale <- as.numeric(t(B) %*% stats::vcov(glm_redshirt) %*% B)
+sqrt(vcv_probability_scale)
+```
+
+\* <font size="0.75"> it is approximate because the derivatives of the non-linear inverse logit functions are being used for `b`.</font>
+
+In our R package, these steps are combined and can be done quickly by calling the function `glm.se.data`. 
+
+```{r}
+# standard error on the probability scale
+glm.se.data(glm_redshirt)
+```
+
+### Calculating confidence intervals of the difference in probability
+
+Now that we have a standard error of the difference in probability using the delta method, it would be good to generate confidence intervals of the difference in probability. We present two methods to do so, the profile likelihood-based and the score methods. 
+
+Generating the profile likelihood CIs of the difference in probability requires that we work out the (log) likelihood of observing the data given any particular value of the difference in underlying probability between the groups, $\delta$. For any particular value of the difference between groups, we also need to know the probability in one group $p_0$. In other words, to get the (log) likelihood of observing the data given any value of $\delta$ requires that we can figure out the value of $p_0$ that maximizes the (log) likelihood, for any value of $\delta$.
+
+For example, under the hypothesis that $\delta$ has a value of 0.1 (e.g., red shirts are 10\% more likely to be killed than someone wearing another color uniform)
+
+```{r, eval=FALSE}
+delta <- 0.1
+```
+
+A function that would return the (log) likelihood for any given value of $p_0$ would be
+
+```{r, eval=FALSE}
+sum(log(stats::dbinom(y, 1, p + delta * x)))
+```
+
+For the moment, we are not focused on the specific value of $p$, but we do need to know what value the data ($x$ and $y$) would take under the assumption $\delta = 0.1$. To do this, we first need to work out what bounds of $p_0$ are possible. The value $p_0$ needs to generate probabilities for both groups (e.g., red shirts and all other crew member uniform colors) that are between zero and one.
+
+```{r, eval=FALSE}
+low <- 0.001
+if (delta < 0)
+  low = -delta + 0.001
+
+upp <- 0.999 - delta
+if (delta < 0)
+  upp = 0.999
+```
+
+Now we can use `optim()` to find the value of $p_0$ that maximizes the likelihood of observing the data, given the hypothesis $\delta = 0.1$.
+
+```{r, eval=FALSE}
+m <- stats::optim(
+  0.01,
+  fn = f,
+  method = "L-BFGS-B",
+  lower = low,
+  upper = upp,
+  control = list(fnscale = -1)
+)
+```
+
+The maximum likelihood estimate of $p_0$ conditional on $\delta = 0.1$ is
+
+```{r, eval=FALSE}
+m$par
+```
+
+and the (negative, log) likelihood of observing the data given $\delta = 0.1$ and its corresponding value of $p_0$ is
+
+```{r, eval=FALSE}
+m$value
+```
+
+This negative log likelihood is not very interesting on its own, however, and only relevant in relation to likelihoods for other values of $\delta$. So what are the likelihoods for other values of $\delta$?  
+
+A reasonable range of values of $\delta$ to consider (including the arbitrary special case of $\delta = 0.1$ considered as an example up until now) is [-0.99 : 0.99].
+
+```{r}
+deltaRange <- seq(-0.99, 0.99, length.out = 500)
+```
+
+If we bundle the above code into a function, we can apply that function for all values of $\delta$ to be considered.
+
+```{r}
+MLstar <- function(delta) {
+  f <- function(p) {
+    sum(log(stats::dbinom(y, 1, p + delta * x)))
+  }
+  low <- 0.001
+  if (delta < 0)
+    low = -delta + 0.001
+  
+  upp <- 0.999 - delta
+  if (delta < 0)
+    upp = 0.999
+  
+  ml <- stats::optim(0.01, fn = f, method = "L-BFGS-B", lower = low, upper = upp, control = list(fnscale = -1))$value
+}
+
+```
+
+If we apply this to our example of red shirt survival,
+
+```{r}
+y <- startrek$status
+x <- startrek$uniform
+
+profLogLik <- data.frame(delta = deltaRange, ploglik =                             unlist(lapply(deltaRange, MLstar)))
+```
+```{r, fig.height = 3, fig.width = 5, fig.align = "center"}
+plot(profLogLik$delta, -profLogLik$ploglik, type='l')
+```
+
+Specifically the maximum occurs at values of $p_0$ of
+
+```{r}
+est <- tapply(y, x, mean)
+est[1]
+```
+
+with a difference of
+
+```{r}
+est[2] - est[1]
+```
+
+and a log likelihood of
+
+```{r}
+mlest <- sum(log(stats::dbinom(y, 1, est[x + 1])))
+mlest
+```
+
+The profile confidence interval is defined as the region of the focal parameter where twice the difference in associated likelihoods is less than a the value of a chi-square distribution with one degree of freedom.
+
+```{r}
+profLogLik$logRatio <- mlest - profLogLik$ploglik
+within_profile_ci <- subset(subset(profLogLik, 2 * profLogLik$logRatio < qchisq(0.95,1)))
+```
+
+This subset has minimum and maximum values of delta of
+
+```{r}
+min(within_profile_ci$delta)
+max(within_profile_ci$delta)
+```
+
+which are the limits of the 95\% profile confidence interval.
+
+In our R package, this all can be done simply by calling the function `profCI`. 
+
+```{r}
+# profile likelihood based confidence intervals
+profCI(x = startrek$uniform, y = startrek$status)
+```
+
+
+### Calculating score confidence intervals
+
+As an alternative to the profile-likelihood confidence intervals, an equally unbiased estimate can be generated using the score (or Wilson) method. In contrast to the standard interval, which uses the estimated standard error to calculate CIs, the score method uses the null standard error. 
+
+In our R package, this can be done simply by calling the function `scoreCI`. 
+
+```{r}
+# score or Wilson confidence intervals
+scoreCI(x = startrek$uniform, y = startrek$status)
+```
+
+
+
+
