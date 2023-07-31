@@ -306,8 +306,6 @@ profCI(x = startrek$uniform, y = startrek$status)
 ```
 
 
-### Calculating score confidence intervals
-
 As an alternative to the profile-likelihood confidence intervals, an equally unbiased estimate can be generated using the score (or Wilson) method. In contrast to the standard interval, which uses the estimated standard error to calculate CIs, the score method uses the null standard error. 
 
 In our R package, this can be done simply by calling the function `scoreCI`. 
