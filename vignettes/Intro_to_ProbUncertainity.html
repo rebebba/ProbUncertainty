@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Introduction to ProbUncertainity</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to ProbUncertainity</h1>
+
+
+
+<hr />
+<p>Here, we demonstrate two regression methods for the analysis of data
+comprising categorical explanatory and binomial response variables: the
+linear regression and the logistic regression. Given that many
+researchers may prefer to consider their data and results in terms of
+probabilities rather than differences in log-odds ratios, for the
+logistic regression we provide functions to calculate (1) the standard
+error of a difference between two probabilities using the delta method
+from a GLM object with a logit link function and a binomial response,
+(2) profile likelihood-based confidence intervals of the difference in
+probability, (3) score confidence intervals of the difference in
+probability.</p>
+<hr />
+<div id="loading-probuncertainity" class="section level2">
+<h2>Loading ProbUncertainity</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># library(devtools)</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># install_github(&quot;rebebba/ProbUncertainity&quot;)</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;ProbUncertainity&quot;</span>)</span></code></pre></div>
+</div>
+<div id="citing-probuncertainity" class="section level2">
+<h2>Citing ProbUncertainity</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">citation</span>(<span class="at">package =</span> <span class="st">&quot;ProbUncertainity&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; To cite package &#39;ProbUncertainity&#39; in publications use:</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   Rebecca N, Ruxton GD, Morrissey MB (TBA). &quot;Classical test, linear</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   models, and their extensions for the analysis of 2x2 contingency</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;   tables.&quot; _TBA_, *TBA*(TBA), TBA. doi:TBA &lt;https://doi.org/TBA&gt;.</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; A BibTeX entry for LaTeX users is</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt;   @Article{,</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt;     title = {Classical test, linear models, and their extensions for the analysis of 2x2 contingency tables},</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt;     author = {Nagel Rebecca and Graeme D. Ruxton and Michael B. Morrissey},</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt;     journal = {TBA},</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;     year = {TBA},</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;     volume = {TBA},</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt;     number = {TBA},</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;     pages = {TBA},</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;     doi = {TBA},</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;   }</span></span></code></pre></div>
+</div>
+<div id="example-data-the-red-shirt-curse-in-star-trek-the-original-series" class="section level2">
+<h2>Example data: The Red Shirt Curse in <em>Star Trek: The Original
+Series</em></h2>
+<p>There is a longstanding hypothesis among fans of Star Trek: The
+Original Series that if an Enterprise crew member is wearing a red
+shirt, they are far more likely to die than other members of the crew
+wearing a different color Starfleet uniform (typically blue for
+scientists and gold for officers). We will test this hypothesis.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;startrek&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">table</span>(startrek)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;        status</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; uniform alive dead</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;    blue   144    7</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;    gold    35    8</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;    red    210   26</span></span></code></pre></div>
+<p>Since we are only interested in the survival of crew members who wear
+red Starfleet uniforms verses those that do not, we will merge crew
+members who wear blue and gold uniforms into one group.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>startrek<span class="sc">$</span>uniform <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(startrek<span class="sc">$</span>uniform <span class="sc">==</span> <span class="st">&quot;red&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>startrek<span class="sc">$</span>status <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(startrek<span class="sc">$</span>status <span class="sc">==</span> <span class="st">&quot;dead&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span></code></pre></div>
+</div>
+<div id="a-classical-test-for-the-analysis-of-2x2-contingency-tables" class="section level2">
+<h2>A classical test for the analysis of 2x2 contingency tables</h2>
+<p>The Pearson’s chi-square test is widely viewed as a reasonable way to
+asses differences between groups (i.e. categorical differences in
+discrete variables).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">chisq.test</span>(startrek<span class="sc">$</span>uniform, startrek<span class="sc">$</span>status, <span class="at">correct =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;  Pearson&#39;s Chi-squared test</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; data:  startrek$uniform and startrek$status</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; X-squared = 1.332, df = 1, p-value = 0.2484</span></span></code></pre></div>
+<p>Using the conventionally accepted 5% threshold, this result tells us
+that there is no difference between groups. Crew members wearing red
+shirts are not more likely to die than crew members wearing another
+color uniform. However, this test does not provide any information on
+the strength or direction of association among variables. It only
+provides the p value.</p>
+</div>
+<div id="a-linear-regression" class="section level2">
+<h2>A linear regression</h2>
+<p>One alternative to the classical chi-square test is a linear
+regression. A linear model (LM) robustly estimates differences of
+proportions between groups and provides information on the strength and
+direction of the association. Statistical uncertainty is largely
+unbiased, although somewhat compromised when sample size is small and
+unbalanced between the groups. These are the same conditions under which
+a chi-square test is discouraged.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>lm_redshirt <span class="ot">&lt;-</span> <span class="fu">lm</span>(status <span class="sc">~</span> uniform, <span class="at">data =</span> startrek)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">summary</span>(lm_redshirt)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; lm(formula = status ~ uniform, data = startrek)</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; -0.11017 -0.11017 -0.07732 -0.07732  0.92268 </span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; (Intercept)  0.07732    0.02110   3.664 0.000279 ***</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; uniform      0.03285    0.02848   1.153 0.249455    </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.2939 on 428 degrees of freedom</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared:  0.003098,   Adjusted R-squared:  0.0007686 </span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; F-statistic:  1.33 on 1 and 428 DF,  p-value: 0.2495</span></span></code></pre></div>
+<p>From the LM summary output, we can easily extract the estimated
+difference in probabilities, standard error, and p value.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># estimated difference in probabilities</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">summary</span>(lm_redshirt)<span class="sc">$</span>coefficients[<span class="dv">2</span>, <span class="dv">1</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; [1] 0.0328499</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># standard error</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">summary</span>(lm_redshirt)<span class="sc">$</span>coefficients[<span class="dv">2</span>, <span class="dv">2</span>]</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; [1] 0.02848487</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co"># p value</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">summary</span>(lm_redshirt)<span class="sc">$</span>coefficients[<span class="dv">2</span>, <span class="dv">4</span>]</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; [1] 0.2494554</span></span></code></pre></div>
+<p>The LM analysis tells us that a crew member wearing a red Starfleet
+uniform is about 3% more likely have died by the end of season 3 of TOS
+than a crew member wearing another color uniform. However, considering
+that red uniforms were worn by members of the operations division - and
+in particular by the Security And Tactical Division, an inherently
+high-risk station - this is not such a large effect.</p>
+</div>
+<div id="a-logistic-regression" class="section level2">
+<h2>A logistic regression</h2>
+<p>Another alternative for the analysis of 2x2 contingency tables would
+be a logistic regression. A generalized linear model (GLM) with a logit
+link function and a binomial response also provides accurate estimates
+of differences between groups. However, estimates of differences from
+the GLM summary output are provided on the log-odds rather than the
+probability scale.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>glm_redshirt <span class="ot">&lt;-</span> <span class="fu">glm</span>(status <span class="sc">~</span> uniform, <span class="at">data =</span> startrek, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">summary</span>(glm_redshirt)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; glm(formula = status ~ uniform, family = &quot;binomial&quot;, data = startrek)</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; (Intercept)  -2.4793     0.2688  -9.224   &lt;2e-16 ***</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; uniform       0.3903     0.3398   1.149    0.251    </span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; (Dispersion parameter for binomial family taken to be 1)</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;     Null deviance: 270.68  on 429  degrees of freedom</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; Residual deviance: 269.33  on 428  degrees of freedom</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; AIC: 273.33</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; Number of Fisher Scoring iterations: 5</span></span></code></pre></div>
+<p>To calculate the difference in probability from a logistic regression
+result (i.e. convert the logs-odds to the probability (data) scale), we
+need to first take the inverse logit of our model estimates and then
+calculate the difference between our two groups of interest. In our R
+package, this is simply done by calling the function
+<code>glm.prob.diff</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># estimated difference in probabilities</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">glm.prob.diff</span>(glm_redshirt)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; (Intercept) </span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;   0.0328499</span></span></code></pre></div>
+<p>The default statistical hypothesis test for GLMs is the z-test, which
+is well-known to behave poorly for binomial GLMs, especially when some
+groups have very high or low probabilities. It is thus widely
+recommended to apply the likelihood ratio test (LRT) to such a GLM
+analysis. Using the LRT, the GLM p value has a high power to reject
+false null hypotheses and a low type 1 error rate.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>glm_0 <span class="ot">&lt;-</span> <span class="fu">glm</span>(status <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> startrek, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># p value based on LRT</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(<span class="dv">2</span> <span class="sc">*</span> (<span class="fu">logLik</span>(glm_redshirt) <span class="sc">-</span> <span class="fu">logLik</span>(glm_0)), <span class="dv">1</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.2449514</span></span></code></pre></div>
+<div id="calculating-delta-method-standard-errors" class="section level3">
+<h3>Calculating delta method standard errors</h3>
+<p>Now that we have a well performing p value for our binomial GLM, it
+would be good to calculate a standard error of the GLM estimated
+difference in probability. This can be done using the delta method.</p>
+<p>If <span class="math inline">\(x\)</span> is a random variable, and
+<span class="math inline">\(y\)</span> is a linear function of <span class="math inline">\(x\)</span> such that <span class="math inline">\(y
+= a + bx\)</span>, then the variance of <span class="math inline">\(y\)</span> is</p>
+<p><span class="math display">\[\begin{equation}
+VAR[y]=VAR[x]b^2
+\end{equation}\]</span></p>
+<p>More generally, if the vector <span class="math inline">\(\mathbf{y}\)</span> is a linear function of the
+random vector <span class="math inline">\(\mathbf{x}\)</span>, <span class="math inline">\(\mathbf{y} = \mathbf{a} +
+\mathbf{b}\mathbf{x}\)</span>, then the variance covariance matrix of
+<span class="math inline">\(\mathbf{y}\)</span> is</p>
+<p><span class="math display">\[\begin{equation}
+VCOV[\mathbf{y}] = \mathbf{b}^tVCOV[\mathbf{x}] \mathbf{b}
+\end{equation}\]</span></p>
+<p>Probabilities are non-linear, but scaling from log-odds to
+probability is a monotonic transformation. The delta method thus takes
+the derivatives of the relevant function (in this case the inverse logit
+function) in the linear approximation of the transformation of the
+measurement error variance (the SE squared) of the logit scale
+parameters to the probability scale parameters.</p>
+<p>The derivative of the inverse logit function in relation to the
+estimate of the intercept of a binomial GLM <span class="math inline">\(\alpha_{GLM}\)</span> is</p>
+<p><span class="math display">\[\begin{equation}
+\frac{\partial p}{\partial \alpha_{GLM}} = ...
+\frac{e^{2x} }{ (1 + e^x)^2}
+- \frac{e^x }{ 1 + e^x}
+- \frac{e^{2x+2y}}{(1 + e^{x + y})^2} )
++ \frac{e^{x+y} }{ 1 + e^{x+y}}
+\end{equation}\]</span></p>
+<p>The derivative of the inverse logit function in relation to the
+estimate of the slope of a binomial GLM $_{GLM} $is</p>
+<p><span class="math display">\[\begin{equation}
+\frac{\partial p}{\partial \beta_{GLM}} =
+\frac{ e^{x+y} }{ 1+e^{x+y} }
+- \frac{ e^{2x+2y} }{ (1+e^{x+y})^2 }
+\end{equation}\]</span></p>
+<p>If we apply this to our example GLM with a logit link function and a
+binomial response of red shirt survival, the measurement error
+covariance matrix of <span class="math inline">\(\alpha_{GLM}\)</span>
+and <span class="math inline">\(\beta_{GLM}\)</span> can be extracted
+from the GLM object by</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>a <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">coef</span>(glm_redshirt)[<span class="dv">1</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>b <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">coef</span>(glm_redshirt)[<span class="dv">2</span>]</span></code></pre></div>
+<p>The application of the variance covariance matrix equation to
+approximate* the measurement error variance of the difference in
+probabilities is then</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>B <span class="ot">&lt;-</span>  <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fu">exp</span>(<span class="dv">2</span> <span class="sc">*</span> a) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a)) <span class="sc">^</span> <span class="dv">2</span> <span class="sc">-</span> <span class="fu">exp</span>(a) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a)) <span class="sc">-</span> <span class="fu">exp</span>(<span class="dv">2</span> <span class="sc">*</span> a <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> b) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b)) <span class="sc">^</span> <span class="dv">2</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b)), <span class="fu">exp</span>(a <span class="sc">+</span> b) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b)) <span class="sc">-</span> <span class="fu">exp</span>(<span class="dv">2</span> <span class="sc">*</span> a <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> b) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b)) <span class="sc">^</span> <span class="dv">2</span>), <span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>vcv_probability_scale <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(B) <span class="sc">%*%</span> stats<span class="sc">::</span><span class="fu">vcov</span>(glm_redshirt) <span class="sc">%*%</span> B)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">sqrt</span>(vcv_probability_scale)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; [1] 0.02798444</span></span></code></pre></div>
+<p>* <font size="0.75"> it is approximate because the derivatives of the
+non-linear inverse logit functions are being used for
+<code>b</code>.</font></p>
+<p>In our R package, these steps are combined and can be done quickly by
+calling the function <code>glm.se.data</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># standard error on the probability scale</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="fu">glm.se.data</span>(glm_redshirt)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; [1] 0.02798444</span></span></code></pre></div>
+</div>
+<div id="calculating-confidence-intervals-of-the-difference-in-probability" class="section level3">
+<h3>Calculating confidence intervals of the difference in
+probability</h3>
+<p>Now that we have a standard error of the difference in probability
+using the delta method, it would be good to generate confidence
+intervals of the difference in probability. We present two methods to do
+so, the profile likelihood-based and the score methods.</p>
+<p>Generating the profile likelihood CIs of the difference in
+probability requires that we work out the (log) likelihood of observing
+the data given any particular value of the difference in underlying
+probability between the groups, <span class="math inline">\(\delta\)</span>. For any particular value of the
+difference between groups, we also need to know the probability in one
+group <span class="math inline">\(p_0\)</span>. In other words, to get
+the (log) likelihood of observing the data given any value of <span class="math inline">\(\delta\)</span> requires that we can figure out
+the value of <span class="math inline">\(p_0\)</span> that maximizes the
+(log) likelihood, for any value of <span class="math inline">\(\delta\)</span>.</p>
+<p>For example, under the hypothesis that <span class="math inline">\(\delta\)</span> has a value of 0.1 (e.g., red
+shirts are 10% more likely to be killed than someone wearing another
+color uniform)</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>delta <span class="ot">&lt;-</span> <span class="fl">0.1</span></span></code></pre></div>
+<p>A function that would return the (log) likelihood for any given value
+of <span class="math inline">\(p_0\)</span> would be</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">log</span>(stats<span class="sc">::</span><span class="fu">dbinom</span>(y, <span class="dv">1</span>, p <span class="sc">+</span> delta <span class="sc">*</span> x)))</span></code></pre></div>
+<p>For the moment, we are not focused on the specific value of <span class="math inline">\(p\)</span>, but we do need to know what value the
+data (<span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>) would take under the assumption <span class="math inline">\(\delta = 0.1\)</span>. To do this, we first need
+to work out what bounds of <span class="math inline">\(p_0\)</span> are
+possible. The value <span class="math inline">\(p_0\)</span> needs to
+generate probabilities for both groups (e.g., red shirts and all other
+crew member uniform colors) that are between zero and one.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>low <span class="ot">&lt;-</span> <span class="fl">0.001</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="cf">if</span> (delta <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  low <span class="ot">=</span> <span class="sc">-</span>delta <span class="sc">+</span> <span class="fl">0.001</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>upp <span class="ot">&lt;-</span> <span class="fl">0.999</span> <span class="sc">-</span> delta</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="cf">if</span> (delta <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  upp <span class="ot">=</span> <span class="fl">0.999</span></span></code></pre></div>
+<p>Now we can use <code>optim()</code> to find the value of <span class="math inline">\(p_0\)</span> that maximizes the likelihood of
+observing the data, given the hypothesis <span class="math inline">\(\delta = 0.1\)</span>.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>m <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">optim</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="fl">0.01</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">fn =</span> f,</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;L-BFGS-B&quot;</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="at">lower =</span> low,</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="at">upper =</span> upp,</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">fnscale =</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>)</span></code></pre></div>
+<p>The maximum likelihood estimate of <span class="math inline">\(p_0\)</span> conditional on <span class="math inline">\(\delta = 0.1\)</span> is</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>m<span class="sc">$</span>par</span></code></pre></div>
+<p>and the (negative, log) likelihood of observing the data given <span class="math inline">\(\delta = 0.1\)</span> and its corresponding value
+of <span class="math inline">\(p_0\)</span> is</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>m<span class="sc">$</span>value</span></code></pre></div>
+<p>This negative log likelihood is not very interesting on its own,
+however, and only relevant in relation to likelihoods for other values
+of <span class="math inline">\(\delta\)</span>. So what are the
+likelihoods for other values of <span class="math inline">\(\delta\)</span>?</p>
+<p>A reasonable range of values of <span class="math inline">\(\delta\)</span> to consider (including the
+arbitrary special case of <span class="math inline">\(\delta =
+0.1\)</span> considered as an example up until now) is [-0.99 :
+0.99].</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>deltaRange <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">0.99</span>, <span class="fl">0.99</span>, <span class="at">length.out =</span> <span class="dv">500</span>)</span></code></pre></div>
+<p>If we bundle the above code into a function, we can apply that
+function for all values of <span class="math inline">\(\delta\)</span>
+to be considered.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>MLstar <span class="ot">&lt;-</span> <span class="cf">function</span>(delta) {</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="cf">function</span>(p) {</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">log</span>(stats<span class="sc">::</span><span class="fu">dbinom</span>(y, <span class="dv">1</span>, p <span class="sc">+</span> delta <span class="sc">*</span> x)))</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  }</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  low <span class="ot">&lt;-</span> <span class="fl">0.001</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>  <span class="cf">if</span> (delta <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>    low <span class="ot">=</span> <span class="sc">-</span>delta <span class="sc">+</span> <span class="fl">0.001</span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>  </span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a>  upp <span class="ot">&lt;-</span> <span class="fl">0.999</span> <span class="sc">-</span> delta</span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a>  <span class="cf">if</span> (delta <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a>    upp <span class="ot">=</span> <span class="fl">0.999</span></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a>  </span>
+<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a>  ml <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">optim</span>(<span class="fl">0.01</span>, <span class="at">fn =</span> f, <span class="at">method =</span> <span class="st">&quot;L-BFGS-B&quot;</span>, <span class="at">lower =</span> low, <span class="at">upper =</span> upp, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">fnscale =</span> <span class="sc">-</span><span class="dv">1</span>))<span class="sc">$</span>value</span>
+<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a>}</span></code></pre></div>
+<p>If we apply this to our example of red shirt survival,</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>y <span class="ot">&lt;-</span> startrek<span class="sc">$</span>status</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>x <span class="ot">&lt;-</span> startrek<span class="sc">$</span>uniform</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>profLogLik <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">delta =</span> deltaRange, <span class="at">ploglik =</span>                             <span class="fu">unlist</span>(<span class="fu">lapply</span>(deltaRange, MLstar)))</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">plot</span>(profLogLik<span class="sc">$</span>delta, <span class="sc">-</span>profLogLik<span class="sc">$</span>ploglik, <span class="at">type=</span><span class="st">&#39;l&#39;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>Specifically the maximum occurs at values of <span class="math inline">\(p_0\)</span> of</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">tapply</span>(y, x, mean)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>est[<span class="dv">1</span>]</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="co">#&gt;          0 </span></span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="co">#&gt; 0.07731959</span></span></code></pre></div>
+<p>with a difference of</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>est[<span class="dv">2</span>] <span class="sc">-</span> est[<span class="dv">1</span>]</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="co">#&gt;         1 </span></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="co">#&gt; 0.0328499</span></span></code></pre></div>
+<p>and a log likelihood of</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>mlest <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">log</span>(stats<span class="sc">::</span><span class="fu">dbinom</span>(y, <span class="dv">1</span>, est[x <span class="sc">+</span> <span class="dv">1</span>])))</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>mlest</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="co">#&gt; [1] -134.6629</span></span></code></pre></div>
+<p>The profile confidence interval is defined as the region of the focal
+parameter where twice the difference in associated likelihoods is less
+than a the value of a chi-square distribution with one degree of
+freedom.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>profLogLik<span class="sc">$</span>logRatio <span class="ot">&lt;-</span> mlest <span class="sc">-</span> profLogLik<span class="sc">$</span>ploglik</span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>within_profile_ci <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="fu">subset</span>(profLogLik, <span class="dv">2</span> <span class="sc">*</span> profLogLik<span class="sc">$</span>logRatio <span class="sc">&lt;</span> <span class="fu">qchisq</span>(<span class="fl">0.95</span>,<span class="dv">1</span>)))</span></code></pre></div>
+<p>This subset has minimum and maximum values of delta of</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">min</span>(within_profile_ci<span class="sc">$</span>delta)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="co">#&gt; [1] -0.02182365</span></span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="fu">max</span>(within_profile_ci<span class="sc">$</span>delta)</span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.08531062</span></span></code></pre></div>
+<p>which are the limits of the 95% profile confidence interval.</p>
+<p>In our R package, this all can be done simply by calling the function
+<code>profCI</code>.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="co"># profile likelihood based confidence intervals</span></span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="fu">profCI</span>(<span class="at">x =</span> startrek<span class="sc">$</span>uniform, <span class="at">y =</span> startrek<span class="sc">$</span>status)</span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="co">#&gt; [1] -0.02182365  0.08531062</span></span></code></pre></div>
+</div>
+<div id="calculating-score-confidence-intervals" class="section level3">
+<h3>Calculating score confidence intervals</h3>
+<p>As an alternative to the profile-likelihood confidence intervals, an
+equally unbiased estimate can be generated using the score (or Wilson)
+method. In contrast to the standard interval, which uses the estimated
+standard error to calculate CIs, the score method uses the null standard
+error.</p>
+<p>In our R package, this can be done simply by calling the function
+<code>scoreCI</code>.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># score or Wilson confidence intervals</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="fu">scoreCI</span>(<span class="at">x =</span> startrek<span class="sc">$</span>uniform, <span class="at">y =</span> startrek<span class="sc">$</span>status)</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="co">#&gt; [1] -0.02435048  0.08875786</span></span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
