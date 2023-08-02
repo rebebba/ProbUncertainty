@@ -7,7 +7,7 @@ This R package provides functions to calculate
 (2) profile likelihood-based confidence intervals of the difference in probability,
 (3) score confidence intervals of the difference in probability
 
-Please cite: Rebecca Nagel, Graeme Ruxton, and Michael Morrissey. 2023. "Classical test, linear models, and their extensions for the analysis of 2x2 contingency tables"
+Please cite: "Classical test, linear models, and their extensions for the analysis of 2x2 contingency tables"
 
 To install:
 ```
