@@ -12,5 +12,5 @@ Please cite: "Classical test, linear models, and their extensions for the analys
 To install:
 ```
 library(devtools)
-install_github("rebebba/ProbUncertainity", build_vignettes = TRUE)
+install_github("https://github.com/rebebba/ProbUncertainty.git", build_vignettes = TRUE)
 ```
