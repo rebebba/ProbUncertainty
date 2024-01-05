@@ -1,4 +1,4 @@
-# ProbUncertainity
+# ProbUncertainty
 
 R package to calculate uncertainty estimates of the difference in probability 
 
