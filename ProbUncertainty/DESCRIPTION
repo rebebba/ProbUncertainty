@@ -1,0 +1,21 @@
+Package: ProbUncertainity
+Title: Calculating uncertainty estimates of the difference in probability
+Version: 0.0.0.9000
+Authors@R: 
+    c(person("Rebecca", "Nagel", , "rn71@st-andrews.ac.uk", role = c("aut", "cre")),
+           person("Michael", "Morrissey", , "mbm5@st-andrews.ac.uk", role = c("aut")),
+           person("Graeme", "Ruxton", , "graeme.ruxton@st-andrews.ac.uk", role = c("aut")))
+Description: functions to calculate (1) the standard error of a difference between two probabilities using the delta method from a binomial GLM output, (2) profile likelihood-based confidence intervals for a difference in probabilities, and (3) score confidence intervals for a difference in probabilities.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3.9000
+Imports: 
+    stats
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
