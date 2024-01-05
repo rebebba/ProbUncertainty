@@ -15,5 +15,5 @@ library(devtools)
 install_github("https://github.com/rebebba/ProbUncertainty.git", build_vignettes = TRUE)
 
 library(ProbUncertainity)
-vignette("Intro_to_ProbUncertainity", package="ProbUncertainty")
+vignette("Intro_to_ProbUncertainty", package="ProbUncertainty")
 ```
