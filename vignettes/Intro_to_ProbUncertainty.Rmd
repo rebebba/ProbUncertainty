@@ -1,8 +1,8 @@
 ---
-title: "Introduction to ProbUncertainity"
+title: "Introduction to ProbUncertainty"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to ProbUncertainity}
+  %\VignetteIndexEntry{Introduction to ProbUncertainty}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,19 +19,19 @@ knitr::opts_chunk$set(
 Here, we demonstrate two regression methods for the analysis of data comprising categorical explanatory and binomial response variables: the linear regression and the logistic regression. Given that many researchers may prefer to consider their data and results in terms of probabilities rather than differences in log-odds ratios, for the logistic regression we provide functions to calculate (1) the standard error of a difference between two probabilities using the delta method from a GLM object with a logit link function and a binomial response, (2) profile likelihood-based confidence intervals of the difference in probability, (3) score confidence intervals of the difference in probability.
 
 ***
-## Loading ProbUncertainity
+## Loading ProbUncertainty
 
 ```{r setup, message=FALSE}
 # library(devtools)
-# install_github("rebebba/ProbUncertainity")
+# install_github("rebebba/ProbUncertainty")
 
-library("ProbUncertainity")
+library("ProbUncertainty")
 ```
 
-## Citing ProbUncertainity
+## Citing ProbUncertainty
 
 ```{r}
-citation(package = "ProbUncertainity")
+citation(package = "ProbUncertainty")
 ```
 
 ## Example data: The Red Shirt Curse in *Star Trek: The Original Series*
